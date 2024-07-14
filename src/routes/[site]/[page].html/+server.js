@@ -2,18 +2,23 @@ import { redirect, text } from '@sveltejs/kit'
 import supabase_admin from '$lib/supabase/admin'
 import { html_server } from '../../../compiler/cloud-workers/server-compiler.js'
 import postcss from '../../../compiler/cloud-workers/server-postcss.js'
-import { getPageData, get_content_with_static } from '@primocms/builder'
+import { getPageData, get_content_with_static } from '@centralasiade/builder'
 
 export const GET = async (event) => {
   const { url } = event
   if (url.pathname.includes('.html')) {
     // Get site and page
     const site_url = event.params['site']
-    const [parent_url = 'index', child_url] = event.params['page']?.split('/') ?? []
+    const [parent_url = 'index', child_url] =
+      event.params['page']?.split('/') ?? []
     const page_url = child_url ?? parent_url
 
     const [{ data: site }, { data: page }] = await Promise.all([
-      supabase_admin.from('sites').select('*').filter('url', 'eq', site_url).single(),
+      supabase_admin
+        .from('sites')
+        .select('*')
+        .filter('url', 'eq', site_url)
+        .single(),
       supabase_admin
         .from('pages')
         .select('*, site!inner(url)')

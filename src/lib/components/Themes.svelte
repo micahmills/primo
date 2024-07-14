@@ -4,7 +4,7 @@
   import _ from 'lodash-es'
   import axios from 'axios'
   import ThemeThumbnail from '$lib/components/ThemeThumbnail.svelte'
-  import { validate_site_structure_v2 } from '@primocms/builder'
+  import { validate_site_structure_v2 } from '@centralasiade/builder'
 
   const dispatch = createEventDispatcher()
 
@@ -15,7 +15,9 @@
     )
     .then(({ data }) => {
       const [section] = data.sections
-      themes = section.templates.filter((template) => template.price === '0' && template.available)
+      themes = section.templates.filter(
+        (template) => template.price === '0' && template.available,
+      )
     })
 
   let selectedTheme = null
@@ -30,14 +32,20 @@
 
   let active_theme_page = 0
   $: active_themes =
-    themes.length > 0 ? themes.slice(active_theme_page * 4, active_theme_page * 4 + 4) : []
+    themes.length > 0
+      ? themes.slice(active_theme_page * 4, active_theme_page * 4 + 4)
+      : []
 </script>
 
 <header>
   <h2 class="heading">Themes</h2>
   {#if themes.length > 0}
     <div class="buttons">
-      <button on:click={() => active_theme_page--} type="button" disabled={active_theme_page === 0}>
+      <button
+        on:click={() => active_theme_page--}
+        type="button"
+        disabled={active_theme_page === 0}
+      >
         <Icon icon="ic:round-chevron-left" />
       </button>
       <button
