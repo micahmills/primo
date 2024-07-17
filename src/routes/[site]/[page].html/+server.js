@@ -48,7 +48,8 @@ export const GET = async (event) => {
         .order('index', { ascending: true }),
     ])
 
-    const locale = 'en'
+    let locale = 'en'
+    let direction = 'ltr'
 
     const component = await Promise.all([
       (async () => {
@@ -104,9 +105,19 @@ export const GET = async (event) => {
       component: component,
     })
 
+    if (
+      locale === 'ar' ||
+      locale === 'he' ||
+      locale === 'fa' ||
+      locale === 'ur' ||
+      locale === 'bal'
+    ) {
+      direction = 'rtl'
+    }
+
     const final = `\
   <!DOCTYPE html>
-  <html lang="${locale}">
+  <html lang="${locale}" dir="${direction}>
     <head>
       <meta name="generator" content="Primo" />
       ${res.head}
