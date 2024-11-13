@@ -117,17 +117,55 @@ const github = {
     }
 
     async function create_tree() {
-      const tree = files.map((file) => ({
-        path: file.path,
-        sha: file.sha,
-        type: 'blob',
-        mode: '100644',
-      }))
-      const { data } = await axios.post(
-        `https://api.github.com/repos/${repo_name}/git/trees`,
-        { tree },
+      console.log('Creating tree...')
+      console.log(files)
+      // Fetch the existing tree from the latest commit
+      const {
+        data: { tree: existingTree },
+      } = await axios.get(
+        `https://api.github.com/repos/${repo_name}/git/trees/${active_sha}?recursive=1`,
         { headers }
       )
+
+      // Convert existing tree to a map for easy lookup
+      const existingFilesMap = new Map()
+      existingTree.forEach((file) => {
+        existingFilesMap.set(file.path, file)
+      })
+      console.log(existingFilesMap)
+      // Create a set of paths from the new files
+      const newFilePaths = new Set(files.map((file) => file.path))
+
+      // Prepare the new tree with existing files that are not in the new files list
+      const newTree = existingTree
+        .filter((file) => file.type === 'blob' && !newFilePaths.has(file.path))
+        .map((file) => ({
+          path: file.path,
+          mode: '100644',
+          type: 'blob',
+          sha: file.sha,
+        }))
+
+      // Add or update files in the new tree with the new content
+      files.forEach((file) => {
+        console.log(file)
+        newTree.push({
+          path: file.path,
+          mode: '100644',
+          type: 'blob',
+          sha: file.sha,
+        })
+      })
+
+      console.log(newTree)
+
+      // Create the new tree in GitHub
+      const { data } = await axios.post(
+        `https://api.github.com/repos/${repo_name}/git/trees`,
+        { tree: newTree },
+        { headers }
+      )
+
       return data
     }
 
